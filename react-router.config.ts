@@ -8,15 +8,28 @@ export default {
   
   // Prerender blog routes for SSG
   async prerender() {
-    const posts = await prisma.blog.findMany({
-      where: { published: true },
-      select: { slug: true },
-    });
-    
-    return [
-      "/",
-      "/blog",
-      ...posts.map((post) => `/blog/${post.slug}`),
-    ];
+    try {
+      const posts = await prisma.blog.findMany({
+        where: { published: true },
+        select: { slug: true },
+      });
+      
+      return [
+        "/",
+        "/blog",
+        ...posts.map((post) => `/blog/${post.slug}`),
+      ];
+    } catch (error) {
+      console.warn(
+        "Database connection failed during prerender. Falling back to basic routes.",
+        error instanceof Error ? error.message : error
+      );
+      // Fallback to basic routes if database is unavailable
+      return [
+        "/",
+        "/blog",
+        "/projects",
+      ];
+    }
   },
 } satisfies Config;
