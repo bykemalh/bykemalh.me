@@ -1,0 +1,42 @@
+// Prisma Schema for Blog System
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   // Markdown content
+  keywords    String   // Comma-separated keywords for SEO
+  categories  String   // Comma-separated categories
+  featured    Boolean  @default(false)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  views       BlogView[] // Blog görüntülenme ilişkisi
+
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+}
+
+model BlogView {
+  id        Int      @id @default(autoincrement())
+  blogId    Int
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  ipAddress String
+  userAgent String
+  viewedAt  DateTime @default(now())
+
+  @@unique([blogId, ipAddress, userAgent]) // Aynı IP + User Agent = 1 kişi
+  @@index([blogId])
+  @@index([ipAddress])
+}
