@@ -9,7 +9,8 @@ import { Link, useLoaderData } from "react-router";
 
 export function headers() {
   return {
-    "Cache-Control": "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800", // SSG: CDN 24h, revalidate for 7 days
+    // SSR with aggressive caching: CDN caches 5 min, stale content served while revalidating for 1 hour
+    "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
   };
 }
 
@@ -61,7 +62,7 @@ export async function loader() {
 
 export default function BlogPage() {
   const { posts } = useLoaderData<typeof loader>();
-  
+
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Blog", url: "/blog" },
@@ -75,7 +76,7 @@ export default function BlogPage() {
         dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)}
         key="breadcrumb-jsonld"
       />
-      
+
       <FloatingDock />
       <PageTransition>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">

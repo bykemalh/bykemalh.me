@@ -12,7 +12,8 @@ import type { Route } from "./+types/blog.$slug";
 
 export function headers() {
   return {
-    "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400", // ISR: CDN 1h, revalidate for 24h
+    // SSR with aggressive caching: CDN caches 10 min, stale content served while revalidating for 1 hour
+    "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=3600",
   };
 }
 
@@ -42,7 +43,7 @@ export function meta({ data }: Route.MetaArgs) {
   const { post } = data;
   const description = post.content.substring(0, 160).replace(/[#*_`]/g, "");
   const categories = post.categories.split(",").map((c: string) => c.trim());
-  
+
   return generateSEO({
     title: post.title,
     description,
@@ -85,14 +86,14 @@ export default function BlogPostPage() {
   return (
     <>
       <BlogViewTracker blogId={post.id} />
-      
+
       {/* Structured Data - Breadcrumb */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)}
         key="breadcrumb-jsonld"
       />
-      
+
       {/* Structured Data - BlogPosting */}
       <script
         type="application/ld+json"
@@ -107,8 +108,8 @@ export default function BlogPostPage() {
           <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-4 mb-8 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 transition-all">
             <div className="flex items-center justify-between gap-4">
               <Link to="/blog">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-900"
                 >

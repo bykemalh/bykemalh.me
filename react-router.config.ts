@@ -1,35 +1,7 @@
 import type { Config } from "@react-router/dev/config";
-import { prisma } from "./app/lib/prisma";
 
 export default {
-  // Config options...
-  // Server-side render by default, to enable SPA mode set this to `false`
+  // Pure SSR mode - no static generation
+  // Performance is handled via Cache-Control headers at route level
   ssr: true,
-  
-  // Prerender blog routes for SSG
-  async prerender() {
-    try {
-      const posts = await prisma.blog.findMany({
-        where: { published: true },
-        select: { slug: true },
-      });
-      
-      return [
-        "/",
-        "/blog",
-        ...posts.map((post) => `/blog/${post.slug}`),
-      ];
-    } catch (error) {
-      console.warn(
-        "Database connection failed during prerender. Falling back to basic routes.",
-        error instanceof Error ? error.message : error
-      );
-      // Fallback to basic routes if database is unavailable
-      return [
-        "/",
-        "/blog",
-        "/projects",
-      ];
-    }
-  },
 } satisfies Config;

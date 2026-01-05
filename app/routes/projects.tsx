@@ -7,7 +7,14 @@ import { ExternalLink, Github, X, ChevronLeft, ChevronRight } from "lucide-react
 import { motion, AnimatePresence } from "framer-motion";
 import type { Route } from "./+types/projects";
 
-export function meta({}: Route.MetaArgs) {
+export function headers() {
+  return {
+    // Projects page is static - CDN caches for 1 hour
+    "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+  };
+}
+
+export function meta({ }: Route.MetaArgs) {
   return generateSEO({
     title: "Projects",
     description: "Explore my portfolio of full-stack web development and AI projects including FytureAI AI Chatbot, Sakus Real-time Bus Tracking, Robotek Competition Winner, E-commerce platforms, Network Tools, and more. Technologies: React, Next.js, Node.js, Python, PyTorch, TensorFlow, Flutter.",
@@ -248,7 +255,7 @@ export default function Projects() {
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!selectedProject?.images) return;
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === selectedProject.images!.length - 1 ? 0 : prev + 1
     );
   };
@@ -256,7 +263,7 @@ export default function Projects() {
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!selectedProject?.images) return;
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === 0 ? selectedProject.images!.length - 1 : prev - 1
     );
   };
@@ -289,7 +296,7 @@ export default function Projects() {
                     loading="lazy"
                   />
                 </motion.div>
-                
+
                 <div className="p-3 sm:p-4 flex flex-col flex-1">
                   <motion.h3 layoutId={`title-${project.id}`} className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2 line-clamp-1">
                     {project.title}
@@ -297,7 +304,7 @@ export default function Projects() {
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
                     {project.description}
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-1 mt-auto">
                     {project.tags.slice(0, 3).map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 h-4 sm:h-5">
@@ -345,20 +352,20 @@ export default function Projects() {
                       className="object-contain w-full h-full"
                     />
                     <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover/slider:opacity-100 transition-opacity">
-                        <button onClick={prevImage} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
-                            <ChevronLeft className="w-6 h-6" />
-                        </button>
-                        <button onClick={nextImage} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
-                            <ChevronRight className="w-6 h-6" />
-                        </button>
+                      <button onClick={prevImage} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button onClick={nextImage} className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
                     </div>
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {selectedProject.images.map((_, idx) => (
-                            <div 
-                                key={idx} 
-                                className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                            />
-                        ))}
+                      {selectedProject.images.map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`w-2 h-2 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                        />
+                      ))}
                     </div>
                   </>
                 ) : (
@@ -387,7 +394,7 @@ export default function Projects() {
                   <p className="text-gray-600 dark:text-gray-300">
                     {selectedProject.fullDescription}
                   </p>
-                  
+
                   <h4 className="text-lg font-semibold mt-6 mb-3 text-gray-900 dark:text-white">Key Features</h4>
                   <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
                     {selectedProject.features.map((feature, idx) => (

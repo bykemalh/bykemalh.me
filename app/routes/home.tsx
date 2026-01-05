@@ -27,7 +27,14 @@ import { PageTransition } from "@/components/page-transition";
 import { generateSEO, generateBreadcrumbSchema, generateJsonLd, generatePersonSchema, generateWebsiteSchema } from "@/lib/seo";
 import type { Route } from "./+types/home";
 
-export function meta({}: Route.MetaArgs) {
+export function headers() {
+  return {
+    // Home page is mostly static - CDN caches for 1 hour
+    "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+  };
+}
+
+export function meta({ }: Route.MetaArgs) {
   return generateSEO({
     title: "Full Stack Developer & AI Engineer",
     description: "Kemal Hafızoğlu's portfolio showcasing expertise in full-stack web development, AI/ML engineering, and innovative software solutions. Creator of FytureAI, Sakus Bus Tracking, Robotek AI Competition Winner, and more. Specialized in React Router, Python, Node.js, PyTorch, and AI chatbots.",
@@ -86,7 +93,7 @@ export function meta({}: Route.MetaArgs) {
       "Payment Gateway",
       "Sakarya Metropolitan Municipality",
       "SUBU Competition Winner",
-      "Kemal H." ,
+      "Kemal H.",
       "bykemalh.me",
       "KemalH Developer",
       "KemalH AI",
@@ -143,21 +150,21 @@ export default function Home() {
         dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)}
         key="breadcrumb-jsonld"
       />
-      
+
       {/* Structured Data - Person */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={generateJsonLd(personSchema)}
         key="person-jsonld"
       />
-      
+
       {/* Structured Data - Website */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={generateJsonLd(websiteSchema)}
         key="website-jsonld"
       />
-      
+
       {/* Floating Dock */}
       <FloatingDock />
       <PageTransition>
