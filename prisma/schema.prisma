@@ -11,21 +11,22 @@ datasource db {
 }
 
 model Blog {
-  id          Int      @id @default(autoincrement())
-  title       String
-  slug        String   @unique
-  content     String   // Markdown content
-  keywords    String   // Comma-separated keywords for SEO
-  categories  String   // Comma-separated categories
-  featured    Boolean  @default(false)
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  views       BlogView[] // Blog görüntülenme ilişkisi
+  id         Int      @id @default(autoincrement())
+  title      String
+  slug       String   @unique
+  content    String // Markdown content
+  keywords   String // Comma-separated keywords for SEO
+  categories String // Comma-separated categories
+  featured   Boolean  @default(false)
+  published  Boolean  @default(false)
+  viewCount  Int      @default(0) // Denormalized counter — avoids COUNT(*) on BlogView
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  views      BlogView[]
 
-  @@index([slug])
-  @@index([published])
-  @@index([featured])
+  // Composite index: covers WHERE published = true ORDER BY featured DESC, createdAt DESC
+  // Replaces the old individual indexes on published, featured, and slug (slug already covered by @unique)
+  @@index([published, featured(sort: Desc), createdAt(sort: Desc)])
 }
 
 model BlogView {
@@ -36,7 +37,7 @@ model BlogView {
   userAgent String
   viewedAt  DateTime @default(now())
 
-  @@unique([blogId, ipAddress, userAgent]) // Aynı IP + User Agent = 1 kişi
-  @@index([blogId])
-  @@index([ipAddress])
+  // Deduplicate by IP only — same IP with different browser = same person
+  // This unique constraint also serves as an index for blogId lookups (leftmost prefix)
+  @@unique([blogId, ipAddress])
 }

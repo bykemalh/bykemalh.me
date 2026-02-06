@@ -7,12 +7,13 @@ import {
   ScrollRestoration,
   useNavigation,
 } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import nProgress from "nprogress";
 import "nprogress/nprogress.css";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { BlogListSkeleton, BlogPostSkeleton, ProjectsSkeleton } from "@/components/skeletons";
 
 // Configure NProgress
 if (typeof document !== "undefined") {
@@ -75,6 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const navigation = useNavigation();
+  const isNavigating = navigation.state === "loading";
 
   useEffect(() => {
     if (navigation.state === "idle") {
@@ -84,7 +86,20 @@ export default function App() {
     }
   }, [navigation.state]);
 
-  return <Outlet />;
+  /** Route-specific skeleton matched against the target pathname */
+  const skeleton = useMemo(() => {
+    if (!isNavigating || !navigation.location) return null;
+    const path = navigation.location.pathname;
+
+    if (path === "/blog") return <BlogListSkeleton />;
+    if (path.startsWith("/blog/")) return <BlogPostSkeleton />;
+    if (path === "/projects") return <ProjectsSkeleton />;
+
+    return null;
+  }, [isNavigating, navigation.location]);
+
+  // Show the skeleton for the target route while navigating; otherwise show the outlet
+  return skeleton ?? <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

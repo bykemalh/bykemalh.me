@@ -22,11 +22,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   const post = await prisma.blog.findUnique({
     where: { slug },
-    include: {
-      _count: {
-        select: { views: true },
-      },
-    },
+    // Read viewCount directly — no COUNT(*) subquery on BlogView
   });
 
   if (!post || !post.published) {
@@ -145,7 +141,7 @@ export default function BlogPostPage() {
                 {readingTime} min read
               </span>
               <span className="text-sm text-gray-400 dark:text-gray-600 flex items-center gap-2">
-                👁️ {post._count.views} views
+                👁️ {(post.viewCount ?? 0).toLocaleString()} views
               </span>
               {post.featured && (
                 <Badge variant="default" className="flex items-center gap-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20">
