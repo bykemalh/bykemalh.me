@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Star, ArrowLeft } from "lucide-react";
 import { Link, useLoaderData, data } from "react-router";
 import type { Route } from "./+types/blog.$slug";
+import { useLanguage } from "@/hooks/use-language";
 
 export function headers() {
   return {
@@ -56,6 +57,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function BlogPostPage() {
   const { post } = useLoaderData<typeof loader>();
+  const { t, language } = useLanguage();
 
   // Calculate reading time (ortalama 200 kelime/dakika)
   const wordCount = post.content.split(/\s+/).length;
@@ -110,7 +112,7 @@ export default function BlogPostPage() {
                   className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-900"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back to Blog
+                  {t("backToBlog")}
                 </Button>
               </Link>
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -130,23 +132,26 @@ export default function BlogPostPage() {
             <div className="flex items-center gap-3 flex-wrap mb-6">
               <time className="text-sm font-mono text-gray-400 dark:text-gray-600 flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                {new Date(post.createdAt).toLocaleDateString("en-US", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {new Date(post.createdAt).toLocaleDateString(
+                  language === "tr" ? "tr-TR" : language === "ru" ? "ru-RU" : "en-US",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )}
               </time>
               <span className="text-sm text-gray-400 dark:text-gray-600 flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                {readingTime} min read
+                {readingTime} {t("minRead")}
               </span>
               <span className="text-sm text-gray-400 dark:text-gray-600 flex items-center gap-2">
-                👁️ {(post.viewCount ?? 0).toLocaleString()} views
+                👁️ {(post.viewCount ?? 0).toLocaleString()} {t("views")}
               </span>
               {post.featured && (
                 <Badge variant="default" className="flex items-center gap-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20">
                   <Star className="w-3 h-3" />
-                  Featured
+                  {t("featured")}
                 </Badge>
               )}
             </div>

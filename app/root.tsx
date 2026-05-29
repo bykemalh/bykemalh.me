@@ -14,6 +14,7 @@ import "nprogress/nprogress.css";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { BlogListSkeleton, BlogPostSkeleton, ProjectsSkeleton } from "@/components/skeletons";
+import { LanguageProvider } from "@/hooks/use-language";
 
 // Configure NProgress
 if (typeof document !== "undefined") {
@@ -99,7 +100,11 @@ export default function App() {
   }, [isNavigating, navigation.location]);
 
   // Show the skeleton for the target route while navigating; otherwise show the outlet
-  return skeleton ?? <Outlet />;
+  return (
+    <LanguageProvider>
+      {skeleton ?? <Outlet />}
+    </LanguageProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

@@ -26,6 +26,7 @@ import {
 import { PageTransition } from "@/components/page-transition";
 import { generateSEO, generateBreadcrumbSchema, generateJsonLd, generatePersonSchema, generateWebsiteSchema } from "@/lib/seo";
 import type { Route } from "./+types/home";
+import { useLanguage } from "@/hooks/use-language";
 
 export function headers() {
   return {
@@ -53,6 +54,8 @@ export function meta({ }: Route.MetaArgs) {
       "Software Engineer",
       "Sakarya Developer",
       // Project Names
+      "Ewros Yazılım",
+      "Ewros Software",
       "Hempy",
       "Sakus",
       "ArzAuto",
@@ -142,6 +145,7 @@ const personSchema = generatePersonSchema();
 const websiteSchema = generateWebsiteSchema();
 
 export default function Home() {
+  const { t, language } = useLanguage();
   return (
     <>
       {/* Structured Data - Breadcrumb */}
@@ -172,12 +176,12 @@ export default function Home() {
           {/* Hero Section */}
           <div id="home" className="flex flex-col-reverse sm:flex-row gap-6 sm:gap-4">
             <div className="flex-1 flex flex-col justify-center space-y-3 sm:space-y-4 text-center sm:text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">Hi , I&apos;m Kemal👋  </h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">{t("hi")}</h1>
               <Badge variant="default" className="flex items-center gap-2 w-fit bg-blue-500 text-white mx-auto sm:mx-0">
                 <BadgeCheck className="w-4 h-4" />
-                Full-Stack Web Developer
+                {t("role")}
               </Badge>
-              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300">I develop modern web applications and AI solutions.</p>
+              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300">{t("heroDesc")}</p>
             </div>
             <img
               src="/profile.jpg"
@@ -190,16 +194,41 @@ export default function Home() {
 
           {/* About Me */}
           <div id="about" className="mt-8 sm:mt-10 md:mt-12">
-            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">About Me</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("aboutMe")}</h3>
             <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4">
-              I&apos;m a full-stack developer with experience in web development since 2021, specializing in creating high-performance, user-focused applications. Skilled in frontend and backend technologies, SEO, database management, and API development. I also build machine learning models in Python using PyTorch and TensorFlow for audio recognition and image matching. Passionate about developing innovative, real-world solutions with clean and maintainable code.
+              {t("aboutMeText")}
             </p>
           </div>
 
           {/* Work Experience */}
           <div id="work">
-            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">Work Experience</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("workExperience")}</h3>
             <Accordion type="single" collapsible className="w-full mt-4">
+              <AccordionItem value="ewros-yazilim">
+                <AccordionTrigger>
+                  <div className="flex flex-col sm:flex-row justify-between w-full items-start sm:items-center gap-2 sm:gap-4">
+                    <div className="flex gap-3 sm:gap-4 items-center">
+                      <img
+                        src="/ewros_logo.png"
+                        alt="Ewros Yazılım Logo"
+                        width={40}
+                        height={40}
+                        className="rounded-full w-10 h-10 object-cover"
+                      />
+                      <div>
+                        <h4 className="font-semibold dark:text-white text-sm sm:text-base">Ewros Yazılım</h4>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("ewrosRole")}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
+                      {language === "tr" ? "Nis 2026 - " + t("present") : language === "ru" ? "Апр 2026 - " + t("present") : "Apr 2026 - " + t("present")}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {t("ewrosDesc")}
+                </AccordionContent>
+              </AccordionItem>
               <AccordionItem value="sakarya-internship">
                 <AccordionTrigger>
                   <div className="flex flex-col sm:flex-row justify-between w-full items-start sm:items-center gap-2 sm:gap-4">
@@ -213,14 +242,16 @@ export default function Home() {
                       />
                       <div>
                         <h4 className="font-semibold dark:text-white text-sm sm:text-base">Sakarya University of Applied Sciences</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Frontend Developer</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("sakaryaRole")}</p>
                       </div>
                     </div>
-                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">Jan 2025 - Aug 2025</span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
+                      {language === "tr" ? "Oca 2025 - Ağu 2025" : language === "ru" ? "Янв 2025 - Авг 2025" : "Jan 2025 - Aug 2025"}
+                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  I worked as a Frontend Developer under the İŞKUR Youth Program, contributing to the development of rekabest.com, the Sakarya Tournament Management System. I built the platform using Node.js and EJS, focusing on creating a user-friendly interface and optimizing overall performance.
+                  {t("sakaryaDesc")}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="aris888-internship">
@@ -236,14 +267,16 @@ export default function Home() {
                       />
                       <div>
                         <h4 className="font-semibold dark:text-white text-sm sm:text-base">Aris888 Metaverse</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Full Stack Web Developer</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("arisRole")}</p>
                       </div>
                     </div>
-                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">Sep 2024 - Jan 2025</span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
+                      {language === "tr" ? "Eyl 2024 - Oca 2025" : language === "ru" ? "Сен 2024 - Янв 2025" : "Sep 2024 - Jan 2025"}
+                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  Working as a full-stack developer at a company focused on metaverse and blockchain technologies. Developing Web3 integrations, NFT marketplace, and game backend systems.
+                  {t("arisDesc")}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="inegol-internship">
@@ -258,15 +291,17 @@ export default function Home() {
                         className="rounded-full w-10 h-10"
                       />
                       <div>
-                        <h4 className="font-semibold dark:text-white text-sm sm:text-base">İnegöl Municipality</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Intern Developer</p>
+                        <h4 className="font-semibold dark:text-white text-sm sm:text-base">{language === "ru" ? "Муниципалитет Инегёль" : "İnegöl Municipality"}</h4>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("inegolRole")}</p>
                       </div>
                     </div>
-                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">Sep 2022 - Jun 2023</span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
+                      {language === "tr" ? "Eyl 2022 - Haz 2023" : language === "ru" ? "Сен 2022 - Июн 2023" : "Sep 2022 - Jun 2023"}
+                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  Interned at İnegöl Municipality IT Department. Developed network monitoring tools and coded the PingATAR application with C#.
+                  {t("inegolDesc")}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -275,7 +310,7 @@ export default function Home() {
           {/* Education */}
           <div>
             <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col">
-              <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">Education</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("education")}</h3>
               <div className="mt-4 space-y-4">
                 <div className="group flex gap-3 sm:gap-4 items-start sm:items-center py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer">
                   <img
@@ -286,8 +321,8 @@ export default function Home() {
                     className="rounded-full w-10 h-10 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold dark:text-white text-sm sm:text-base">Sakarya University of Applied Sciences</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Bachelor&apos;s in Computer Engineering</p>
+                    <h4 className="font-semibold dark:text-white text-sm sm:text-base">{t("subuName")}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("subuDegree")}</p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -318,8 +353,8 @@ export default function Home() {
                     className="rounded-full w-10 h-10 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold dark:text-white text-sm sm:text-base">HACI SEVİM YILDIZ-1 TECHNICAL HIGH SCHOOL</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">COMPUTER SCIENCE / Web Programming</p>
+                    <h4 className="font-semibold dark:text-white text-sm sm:text-base">{t("highSchoolName")}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("highSchoolDegree")}</p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -345,7 +380,7 @@ export default function Home() {
 
           {/* Skills */}
           <div className="">
-            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">Skills</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("skills")}</h3>
             <div className="mt-6 flex flex-wrap gap-2">
               {/* Programming Languages */}
               <Badge className="bg-yellow-400 text-black hover:bg-yellow-500 flex items-center gap-1.5 text-xs sm:text-sm">
@@ -453,21 +488,21 @@ export default function Home() {
 
               {/* Spoken Languages */}
               <Badge className="bg-red-600 text-white hover:bg-red-700 text-xs sm:text-sm">
-                🇹🇷 Turkish • Native
+                {t("langTurkish")}
               </Badge>
               <Badge className="bg-blue-600 text-white hover:bg-blue-700 text-xs sm:text-sm">
-                🇷🇺 Russian • Good
+                {t("langRussian")}
               </Badge>
               <Badge className="bg-indigo-600 text-white hover:bg-indigo-700 text-xs sm:text-sm">
-                🇬🇧 English • Intermediate
+                {t("langEnglish")}
               </Badge>
             </div>
           </div>
 
           {/* Contact */}
           <div id="contact">
-            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">Contact Me</h3>
-            <p className="text-sm sm:text-base">Contact me via Telegram: <a className="text-blue-500 hover:underline" href="https://t.me/bykemalh">bykemalh</a></p>
+            <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("contactMe")}</h3>
+            <p className="text-sm sm:text-base">{t("telegramContact")} <a className="text-blue-500 hover:underline" href="https://t.me/bykemalh">bykemalh</a></p>
           </div>
         </div>
       </PageTransition>

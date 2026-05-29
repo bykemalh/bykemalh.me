@@ -6,6 +6,7 @@ import { generateSEO, generateBreadcrumbSchema, generateJsonLd } from "@/lib/seo
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLoaderData } from "react-router";
+import { useLanguage } from "@/hooks/use-language";
 
 export function headers() {
   return {
@@ -62,6 +63,7 @@ export async function loader() {
 
 export default function BlogPage() {
   const { posts } = useLoaderData<typeof loader>();
+  const { t, language } = useLanguage();
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
@@ -83,15 +85,15 @@ export default function BlogPage() {
           {/* Header */}
           <div className="mb-12 sm:mb-16 md:mb-20">
             <h1 className="text-2xl sm:text-3xl font-bold text-black dark:text-white tracking-tight">
-              Blog
+              {t("blog")}
             </h1>
           </div>
 
           {posts.length === 0 ? (
             <EmptyState
               icon={<FileText className="w-16 h-16" />}
-              title="No blog posts yet"
-              description="Check back soon for new content!"
+              title={t("noBlog")}
+              description={t("checkBack")}
             />
           ) : (
             <div className="space-y-8 sm:space-y-10">
@@ -102,16 +104,19 @@ export default function BlogPage() {
                       {/* Featured badge & date */}
                       <div className="flex items-center gap-3 flex-wrap">
                         <time className="text-xs sm:text-sm font-mono text-gray-400 dark:text-gray-600">
-                          {new Date(post.createdAt).toLocaleDateString("en-US", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {new Date(post.createdAt).toLocaleDateString(
+                            language === "tr" ? "tr-TR" : language === "ru" ? "ru-RU" : "en-US",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
                         </time>
                         {post.featured && (
                           <Badge variant="default" className="flex items-center gap-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20">
                             <Star className="w-3 h-3" />
-                            Featured
+                            {t("featured")}
                           </Badge>
                         )}
                       </div>

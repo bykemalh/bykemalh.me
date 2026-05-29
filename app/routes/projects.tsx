@@ -6,6 +6,7 @@ import { generateSEO } from "@/lib/seo";
 import { ExternalLink, Github, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Route } from "./+types/projects";
+import { useLanguage } from "@/hooks/use-language";
 
 export function headers() {
   return {
@@ -245,6 +246,7 @@ const projects = [
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { t, tProject } = useLanguage();
 
   useEffect(() => {
     if (selectedProject) {
@@ -274,9 +276,9 @@ export default function Projects() {
       <PageTransition>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">
           <div className="mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white mb-4">Projects</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white mb-4">{t("projectsTitle")}</h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              A collection of my work in web development and artificial intelligence.
+              {t("projectsDesc")}
             </p>
           </div>
 
@@ -302,7 +304,7 @@ export default function Projects() {
                     {project.title}
                   </motion.h3>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
-                    {project.description}
+                    {tProject(project.id, "description")}
                   </p>
 
                   <div className="flex flex-wrap gap-1 mt-auto">
@@ -392,12 +394,12 @@ export default function Projects() {
 
                 <div className="prose dark:prose-invert max-w-none mb-8">
                   <p className="text-gray-600 dark:text-gray-300">
-                    {selectedProject.fullDescription}
+                    {tProject(selectedProject.id, "fullDescription")}
                   </p>
 
-                  <h4 className="text-lg font-semibold mt-6 mb-3 text-gray-900 dark:text-white">Key Features</h4>
+                  <h4 className="text-lg font-semibold mt-6 mb-3 text-gray-900 dark:text-white">{t("keyFeatures")}</h4>
                   <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-                    {selectedProject.features.map((feature, idx) => (
+                    {(tProject(selectedProject.id, "features") || []).map((feature: string, idx: number) => (
                       <li key={idx}>{feature}</li>
                     ))}
                   </ul>
@@ -412,7 +414,7 @@ export default function Projects() {
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
                     >
                       <Github className="w-5 h-5" />
-                      View Code
+                      {t("viewCode")}
                     </a>
                   )}
                   {selectedProject.demoUrl && selectedProject.demoUrl !== "#" && (
@@ -423,7 +425,7 @@ export default function Projects() {
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium ml-auto"
                     >
                       <ExternalLink className="w-5 h-5" />
-                      Live Demo
+                      {t("liveDemo")}
                     </a>
                   )}
                 </div>

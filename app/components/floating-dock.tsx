@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Home, BookOpen, FolderGit2, Moon, Sun, Github, Linkedin } from "lucide-react";
+import { Home, BookOpen, FolderGit2, Moon, Sun, Github, Linkedin, Languages } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { SiTelegram } from "react-icons/si";
 import { useTheme } from "@/hooks/use-theme";
+import { useLanguage } from "@/hooks/use-language";
 
 export function FloatingDock() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -22,19 +24,19 @@ export function FloatingDock() {
   const dockItems = [
     {
       icon: Home,
-      label: "Home",
+      label: t("home"),
       href: "/",
       isActive: pathname === "/"
     },
     {
       icon: BookOpen,
-      label: "Blog",
+      label: t("blog"),
       href: "/blog",
       isActive: pathname.startsWith("/blog")
     },
     {
       icon: FolderGit2,
-      label: "Projects",
+      label: t("projects"),
       href: "/projects",
       isActive: pathname.startsWith("/projects")
     },
@@ -108,6 +110,21 @@ export function FloatingDock() {
         {/* Divider */}
         <div className="w-px h-3 sm:h-4 bg-gray-300 dark:bg-gray-600 mx-0.5" />
 
+        {/* Language Switcher */}
+        <button
+          onClick={() => setLanguage(language === "tr" ? "en" : language === "en" ? "ru" : "tr")}
+          className="group relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 hover:scale-110"
+          aria-label="Change language"
+        >
+          <Languages className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
+          <span className="absolute -top-8 px-2 py-0.5 bg-black/80 dark:bg-white/80 text-white dark:text-black text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            {language === "tr" ? "Türkçe" : language === "ru" ? "Русский" : "English"}
+          </span>
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-3 sm:h-4 bg-gray-300 dark:bg-gray-600 mx-0.5" />
+
         {/* Dark Mode Toggle */}
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -120,7 +137,7 @@ export function FloatingDock() {
             <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
           )}
           <span className="absolute -top-8 px-2 py-0.5 bg-black/80 dark:bg-white/80 text-white dark:text-black text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            {mounted && theme === "dark" ? "Light" : "Dark"}
+            {mounted && theme === "dark" ? t("light") : t("dark")}
           </span>
         </button>
       </div>
