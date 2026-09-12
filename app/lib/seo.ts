@@ -22,6 +22,8 @@ interface SEOProps {
   author?: string;
   section?: string;
   tags?: string[];
+  locale?: "tr" | "en";
+  alternates?: { locale: string; url: string }[];
 }
 
 export function generateSEO({
@@ -36,6 +38,8 @@ export function generateSEO({
   author = siteConfig.author,
   section,
   tags = [],
+  locale = "tr",
+  alternates = [],
 }: SEOProps) {
   const fullUrl = url ? `${siteConfig.url}${url}` : siteConfig.url;
   
@@ -60,7 +64,7 @@ export function generateSEO({
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: title },
     { property: "og:site_name", content: siteConfig.name },
-    { property: "og:locale", content: siteConfig.locale },
+    { property: "og:locale", content: locale === "tr" ? "tr_TR" : "en_US" },
     
     // Twitter Card
     { name: "twitter:card", content: "summary_large_image" },
@@ -71,6 +75,10 @@ export function generateSEO({
     { name: "twitter:image", content: image },
     { name: "twitter:image:alt", content: title },
   ];
+
+  alternates.forEach((alternate) => {
+    meta.push({ tagName: "link", rel: "alternate", hrefLang: alternate.locale, href: `${siteConfig.url}${alternate.url}` });
+  });
 
   // Article-specific meta tags
   if (type === "article") {
@@ -192,7 +200,7 @@ export function generateWebsiteSchema() {
   };
 }
 
-export function generateBlogPostingSchema({ title, description, content, url, datePublished, dateModified, author, keywords, readingTime }: any) {
+export function generateBlogPostingSchema({ title, description, content, url, datePublished, dateModified, author, keywords, readingTime, language = "tr" }: any) {
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -218,5 +226,6 @@ export function generateBlogPostingSchema({ title, description, content, url, da
       "@type": "WebPage",
       "@id": `${siteConfig.url}${url}`,
     },
+    inLanguage: language,
   };
 }

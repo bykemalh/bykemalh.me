@@ -1,36 +1,33 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useFetcher } from "react-router";
+import { useEffect } from "react";
 
 interface BlogViewTrackerProps {
   blogId: number;
 }
 
 export function BlogViewTracker({ blogId }: BlogViewTrackerProps) {
-  const fetcher = useFetcher();
-  const hasTracked = useRef(false);
-
   useEffect(() => {
-    // Prevent double tracking in strict mode or re-renders
-    if (hasTracked.current) return;
-    
-    // Check if already viewed in this session (optional client-side check)
     const storageKey = `blog-viewed-${blogId}`;
-    if (sessionStorage.getItem(storageKey)) {
-      hasTracked.current = true;
-      return;
+    try {
+      if (sessionStorage.getItem(storageKey)) return;
+    } catch {
+      // Privacy modes can disallow storage. Tracking remains best effort.
     }
 
-    hasTracked.current = true;
-    sessionStorage.setItem(storageKey, "true");
+    void fetch("/api/view", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: new URLSearchParams({ blogId: blogId.toString() }),
+      credentials: "same-origin",
+      keepalive: true,
+    }).then((response) => {
+      if (response.ok) {
+        try { sessionStorage.setItem(storageKey, "true"); } catch { /* best effort */ }
+      }
+    }).catch(() => undefined);
 
-    // Send view request
-    fetcher.submit(
-      { blogId: blogId.toString() },
-      { method: "post", action: "/api/view" }
-    );
-  }, [blogId, fetcher]);
+  }, [blogId]);
 
   return null;
 }

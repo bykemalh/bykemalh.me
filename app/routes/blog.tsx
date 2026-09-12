@@ -1,138 +1,52 @@
 import { FloatingDock } from "@/components/floating-dock";
 import { PageTransition } from "@/components/page-transition";
 import { EmptyState } from "@/components/ui/empty-state";
-import { FileText, Star } from "lucide-react";
-import { generateSEO, generateBreadcrumbSchema, generateJsonLd } from "@/lib/seo";
-import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
-import { Link, useLoaderData } from "react-router";
-import { useLanguage } from "@/hooks/use-language";
+import { blogLocales, blogPath, isBlogLocale, localeLabel } from "@/lib/blog-locale";
+import { prisma } from "@/lib/prisma";
+import { generateBreadcrumbSchema, generateJsonLd, generateSEO } from "@/lib/seo";
+import { FileText, Star } from "lucide-react";
+import { data, Link, useLoaderData } from "react-router";
+import type { Route } from "./+types/blog";
 
 export function headers() {
-  return {
-    // SSR with aggressive caching: CDN caches 5 min, stale content served while revalidating for 1 hour
-    "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600",
-  };
+  return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600", "CDN-Cache-Control": "max-age=300, stale-while-revalidate=3600" };
 }
 
-export function meta() {
-  return generateSEO({
-    title: "Blog",
-    description: "Read the latest articles, tutorials, and insights about web development, AI/ML, software engineering, and technology from Kemal Hafızoğlu.",
-    keywords: [
-      "Blog",
-      "Tech Blog",
-      "Web Development Articles",
-      "AI Articles",
-      "Machine Learning Tutorials",
-      "Programming Blog",
-      "Software Engineering",
-      "React Router Tutorials",
-      "Python Tutorials",
-      "Technology Insights",
-    ],
-    url: "/blog",
-  });
-}
-
-export async function loader() {
+export async function loader({ params }: Route.LoaderArgs) {
+  if (!isBlogLocale(params.locale)) throw data("Blog language not found", { status: 404 });
   try {
-    const posts = await prisma.blog.findMany({
-      where: {
-        published: true,
-      },
-      orderBy: [
-        { featured: "desc" },
-        { createdAt: "desc" },
-      ],
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        categories: true,
-        featured: true,
-        createdAt: true,
-      },
+    const posts = await prisma.blogTranslation.findMany({
+      where: { locale: params.locale, published: true },
+      orderBy: [{ blog: { featured: "desc" } }, { createdAt: "desc" }],
+      select: { id: true, title: true, slug: true, createdAt: true, blog: { select: { featured: true } } },
     });
-    return { posts };
-  } catch (e) {
-    console.warn('Database error or not available:', e);
-    return { posts: [] };
+    return { locale: params.locale, posts };
+  } catch (error) {
+    console.error("Unable to load the blog list", error);
+    throw data("Blog is temporarily unavailable", { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }
 
+export function meta({ loaderData }: Route.MetaArgs) {
+  const locale = loaderData?.locale ?? "tr";
+  return generateSEO({ title: "Blog", description: locale === "tr" ? "Yazılım geliştirme, yapay zekâ ve teknoloji üzerine yazılar." : "Articles about software development, AI, and technology.", keywords: ["blog", "software", "technology", "AI"], url: blogPath(locale), locale });
+}
+
 export default function BlogPage() {
-  const { posts } = useLoaderData<typeof loader>();
-  const { t, language } = useLanguage();
-
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "Home", url: "/" },
-    { name: "Blog", url: "/blog" },
-  ]);
-
-  return (
-    <>
-      {/* Structured Data - Breadcrumb */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)}
-        key="breadcrumb-jsonld"
-      />
-
-      <FloatingDock />
-      <PageTransition>
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">
-          {/* Header */}
-          <div className="mb-12 sm:mb-16 md:mb-20">
-            <h1 className="text-2xl sm:text-3xl font-bold text-black dark:text-white tracking-tight">
-              {t("blog")}
-            </h1>
-          </div>
-
-          {posts.length === 0 ? (
-            <EmptyState
-              icon={<FileText className="w-16 h-16" />}
-              title={t("noBlog")}
-              description={t("checkBack")}
-            />
-          ) : (
-            <div className="space-y-8 sm:space-y-10">
-              {posts.map((post) => (
-                <article key={post.id} className="group">
-                  <Link to={`/blog/${post.slug}`} className="block">
-                    <div className="flex flex-col gap-3">
-                      {/* Featured badge & date */}
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <time className="text-xs sm:text-sm font-mono text-gray-400 dark:text-gray-600">
-                          {new Date(post.createdAt).toLocaleDateString(
-                            language === "tr" ? "tr-TR" : language === "ru" ? "ru-RU" : "en-US",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            }
-                          )}
-                        </time>
-                        {post.featured && (
-                          <Badge variant="default" className="flex items-center gap-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20">
-                            <Star className="w-3 h-3" />
-                            {t("featured")}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Title */}
-                      <h2 className="text-lg sm:text-xl font-semibold text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
-                        {post.title}
-                      </h2>
-                    </div>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
-        </div>
-      </PageTransition>
-    </>
-  );
+  const { locale, posts } = useLoaderData<typeof loader>();
+  const dateLocale = locale === "tr" ? "tr-TR" : "en-US";
+  const breadcrumbSchema = generateBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Blog", url: blogPath(locale) }]);
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)} />
+    <FloatingDock />
+    <PageTransition><main className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">
+      <header className="mb-12 sm:mb-16 md:mb-20 flex items-start justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-black dark:text-white tracking-tight">Blog</h1>
+        <nav aria-label="Blog language" className="flex gap-2 text-sm">{blogLocales.map((item) => <Link key={item} to={blogPath(item)} className={item === locale ? "font-semibold text-black dark:text-white" : "text-gray-500 hover:text-black dark:hover:text-white"}>{localeLabel(item)}</Link>)}</nav>
+      </header>
+      {posts.length === 0 ? <EmptyState icon={<FileText className="w-16 h-16" />} title={locale === "tr" ? "Henüz blog yazısı yok" : "No blog posts yet"} description={locale === "tr" ? "Yakında tekrar kontrol edin." : "Please check back soon."} /> :
+        <div className="space-y-8 sm:space-y-10">{posts.map((post) => <article key={post.id} className="group"><Link to={blogPath(locale, post.slug)} prefetch="intent" className="block"><div className="flex flex-col gap-3"><div className="flex items-center gap-3 flex-wrap"><time className="text-xs sm:text-sm font-mono text-gray-400 dark:text-gray-600">{new Intl.DateTimeFormat(dateLocale, { day: "2-digit", month: "short", year: "numeric" }).format(post.createdAt)}</time>{post.blog.featured && <Badge variant="default" className="flex items-center gap-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20"><Star className="w-3 h-3" />{locale === "tr" ? "Öne çıkan" : "Featured"}</Badge>}</div><h2 className="text-lg sm:text-xl font-semibold text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">{post.title}</h2></div></Link></article>)}</div>}
+    </main></PageTransition>
+  </>;
 }

@@ -3,7 +3,7 @@
   
   # Modern Portfolio & Blog Template
   
-  ### Built with React Router v7 - Blazing Fast, Modern, Production-Ready
+### Built with React Router v8 - Blazing Fast, Modern, Production-Ready
   
   A complete portfolio and blog solution with SSG, ISR, advanced analytics, and professional SEO
   
@@ -69,7 +69,7 @@ Originally built with Next.js, this template has been **completely rewritten wit
 
 ## Tech Stack
 
-**Framework**: [React Router v7](https://reactrouter.com) (SSR + SSG)  
+**Framework**: [React Router v8](https://reactrouter.com) (SSR)
 **Language**: TypeScript  
 **Styling**: [TailwindCSS v4](https://tailwindcss.com)  
 **UI Components**: [Radix UI](https://radix-ui.com)  
@@ -160,7 +160,18 @@ docker-compose up -d
 
 ### Adding Blog Posts
 
-1. Create a new entry in your database using Prisma Studio:
+Use the paste-safe terminal studio after applying migrations:
+
+```bash
+npx prisma migrate deploy
+npm run blog
+```
+
+The studio manages Turkish and English translations separately. Article URLs are
+`/tr/blog/:slug` and `/en/blog/:slug`; publishing one translation does not
+publish the other.
+
+You can also create an entry in Prisma Studio:
 ```bash
 npx prisma studio
 ```

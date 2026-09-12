@@ -4,11 +4,14 @@ import { BadgeCheck, Database } from "lucide-react";
 import { FloatingDock } from "@/components/floating-dock";
 import {
   SiJavascript,
+  SiGo,
   SiTypescript,
   SiPython,
   SiSharp,
   SiKotlin,
   SiReact,
+  SiVuedotjs,
+  SiNuxtdotjs,
   SiNextdotjs,
   SiRemix,
   SiNodedotjs,
@@ -17,6 +20,7 @@ import {
   SiDotnet,
   SiPostgresql,
   SiMysql,
+  SiRedis,
   SiFlutter,
   SiPytorch,
   SiTensorflow,
@@ -395,6 +399,10 @@ export default function Home() {
                 <SiPython className="w-3 h-3 sm:w-4 sm:h-4" />
                 Python
               </Badge>
+              <Badge className="bg-cyan-600 text-white hover:bg-cyan-700 flex items-center gap-1.5 text-xs sm:text-sm">
+                <SiGo className="w-3 h-3 sm:w-4 sm:h-4" />
+                Go
+              </Badge>
               <Badge className="bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-1.5 text-xs sm:text-sm">
                 <SiSharp className="w-3 h-3 sm:w-4 sm:h-4" />
                 C#
@@ -408,6 +416,14 @@ export default function Home() {
               <Badge className="bg-cyan-500 text-white hover:bg-cyan-600 flex items-center gap-1.5 text-xs sm:text-sm">
                 <SiReact className="w-3 h-3 sm:w-4 sm:h-4" />
                 React
+              </Badge>
+              <Badge className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-1.5 text-xs sm:text-sm">
+                <SiVuedotjs className="w-3 h-3 sm:w-4 sm:h-4" />
+                Vue.js
+              </Badge>
+              <Badge className="bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-1.5 text-xs sm:text-sm">
+                <SiNuxtdotjs className="w-3 h-3 sm:w-4 sm:h-4" />
+                Nuxt.js
               </Badge>
               <Badge className="bg-black text-white hover:bg-gray-800 flex items-center gap-1.5 text-xs sm:text-sm">
                 <SiNextdotjs className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -447,6 +463,10 @@ export default function Home() {
                 <SiMysql className="w-3 h-3 sm:w-4 sm:h-4" />
                 MySQL
               </Badge>
+              <Badge className="bg-red-600 text-white hover:bg-red-700 flex items-center gap-1.5 text-xs sm:text-sm">
+                <SiRedis className="w-3 h-3 sm:w-4 sm:h-4" />
+                Redis
+              </Badge>
               <Badge className="bg-gray-700 text-white hover:bg-gray-800 flex items-center gap-1.5 text-xs sm:text-sm">
                 <Database className="w-3 h-3 sm:w-4 sm:h-4" />
                 MS SQL
@@ -460,6 +480,10 @@ export default function Home() {
               <Badge className="bg-purple-500 text-white hover:bg-purple-600 flex items-center gap-1.5 text-xs sm:text-sm">
                 <SiKotlin className="w-3 h-3 sm:w-4 sm:h-4" />
                 Kotlin
+              </Badge>
+              <Badge className="bg-purple-700 text-white hover:bg-purple-800 flex items-center gap-1.5 text-xs sm:text-sm">
+                <SiKotlin className="w-3 h-3 sm:w-4 sm:h-4" />
+                Kotlin Multiplatform
               </Badge>
 
               {/* Desktop Development */}

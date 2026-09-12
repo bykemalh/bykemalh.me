@@ -92,8 +92,8 @@ export default function App() {
     if (!isNavigating || !navigation.location) return null;
     const path = navigation.location.pathname;
 
-    if (path === "/blog") return <BlogListSkeleton />;
-    if (path.startsWith("/blog/")) return <BlogPostSkeleton />;
+    if (/^\/(tr|en)\/blog$/.test(path)) return <BlogListSkeleton />;
+    if (/^\/(tr|en)\/blog\//.test(path)) return <BlogPostSkeleton />;
     if (path === "/projects") return <ProjectsSkeleton />;
 
     return null;

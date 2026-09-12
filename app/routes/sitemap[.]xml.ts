@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 export async function loader({ request }: LoaderFunctionArgs) {
   const baseUrl = new URL(request.url).origin;
   
-  const posts = await prisma.blog.findMany({
+  const posts = await prisma.blogTranslation.findMany({
     where: { published: true },
-    select: { slug: true, updatedAt: true },
+    select: { locale: true, slug: true, updatedAt: true },
   });
 
   const content = `<?xml version="1.0" encoding="UTF-8"?>
@@ -22,7 +22,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/blog</loc>
+    <loc>${baseUrl}/tr/blog</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/en/blog</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -30,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .map(
       (post) => `
   <url>
-    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <loc>${baseUrl}/${post.locale}/blog/${post.slug}</loc>
     <lastmod>${post.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

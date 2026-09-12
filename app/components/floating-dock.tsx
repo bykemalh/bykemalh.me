@@ -31,8 +31,8 @@ export function FloatingDock() {
     {
       icon: BookOpen,
       label: t("blog"),
-      href: "/blog",
-      isActive: pathname.startsWith("/blog")
+      href: pathname.startsWith("/en/blog") ? "/en/blog" : "/tr/blog",
+      isActive: pathname.includes("/blog")
     },
     {
       icon: FolderGit2,
