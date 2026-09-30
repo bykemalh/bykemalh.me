@@ -1,3 +1,7 @@
+# Cloudflare Workers deploy kullanılır (`npm run deploy`).
+# Bu Dockerfile yalnızca Node-uyumlu ortamda önizleme içindir;
+# veritabanı Cloudflare D1 binding (`DB`) üzerinden bağlanır,
+# PostgreSQL / DATABASE_URL artık kullanılmıyor.
 FROM node:22-alpine AS development-dependencies-env
 COPY . /app
 WORKDIR /app

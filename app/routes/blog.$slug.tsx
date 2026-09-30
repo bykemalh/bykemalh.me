@@ -5,7 +5,7 @@ import { BlogViewTracker } from "@/components/blog-view-tracker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { blogLocales, blogPath, isBlogLocale, localeLabel } from "@/lib/blog-locale";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { generateBlogPostingSchema, generateBreadcrumbSchema, generateJsonLd, generateSEO } from "@/lib/seo";
 import { ArrowLeft, Calendar, Clock, Star } from "lucide-react";
 import { data, Link, useLoaderData } from "react-router";
@@ -13,8 +13,9 @@ import type { Route } from "./+types/blog.$slug";
 
 export function headers() { return { "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=3600", "CDN-Cache-Control": "max-age=600, stale-while-revalidate=3600" }; }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, context }: Route.LoaderArgs) {
   if (!isBlogLocale(params.locale)) throw data("Blog language not found", { status: 404 });
+  const prisma = getPrisma(context);
   const post = await prisma.blogTranslation.findUnique({
     where: { locale_slug: { locale: params.locale, slug: params.slug } },
     include: { blog: { select: { id: true, featured: true, viewCount: true, translations: { where: { published: true }, select: { locale: true, slug: true } } } } },

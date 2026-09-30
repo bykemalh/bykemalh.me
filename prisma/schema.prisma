@@ -1,13 +1,21 @@
 // Prisma Schema for Blog System
-// Database: PostgreSQL
+// Database: Cloudflare D1 (SQLite)
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+  runtime  = "cloudflare"
+}
+
+// Node.js CLI (blog-manager) için klasik client
+generator nodeClient {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma-node"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Blog {
@@ -47,7 +55,7 @@ model BlogTranslation {
   id         Int      @id @default(autoincrement())
   blogId     Int
   blog       Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  locale     String   @db.VarChar(2)
+  locale     String
   title      String
   slug       String
   content    String

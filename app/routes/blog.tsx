@@ -3,7 +3,7 @@ import { PageTransition } from "@/components/page-transition";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { blogLocales, blogPath, isBlogLocale, localeLabel } from "@/lib/blog-locale";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { generateBreadcrumbSchema, generateJsonLd, generateSEO } from "@/lib/seo";
 import { FileText, Star } from "lucide-react";
 import { data, Link, useLoaderData } from "react-router";
@@ -13,9 +13,10 @@ export function headers() {
   return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600", "CDN-Cache-Control": "max-age=300, stale-while-revalidate=3600" };
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, context }: Route.LoaderArgs) {
   if (!isBlogLocale(params.locale)) throw data("Blog language not found", { status: 404 });
   try {
+    const prisma = getPrisma(context);
     const posts = await prisma.blogTranslation.findMany({
       where: { locale: params.locale, published: true },
       orderBy: [{ blog: { featured: "desc" } }, { createdAt: "desc" }],

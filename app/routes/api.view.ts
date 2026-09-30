@@ -1,7 +1,7 @@
+import { getPrisma } from "@/lib/prisma";
 import { type ActionFunctionArgs, data } from "react-router";
-import { prisma } from "@/lib/prisma";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, context }: ActionFunctionArgs) {
   // Security: Check Origin/Referer to prevent CSRF
   const origin = request.headers.get("Origin");
   const host = request.headers.get("Host");
@@ -31,22 +31,24 @@ export async function action({ request }: ActionFunctionArgs) {
   const userAgent = (request.headers.get("user-agent") || "unknown").substring(0, 512);
 
   try {
-    // Single atomic CTE query:
-    // 1. INSERT view if not exists (ON CONFLICT DO NOTHING)
-    // 2. Only INCREMENT viewCount when a genuinely new row was inserted
-    // No race conditions, no dead tuples from failed inserts, no separate transaction needed
-    await prisma.$executeRaw`
-      WITH ins AS (
-        INSERT INTO "BlogView" ("blogId", "ipAddress", "userAgent", "viewedAt")
-        VALUES (${id}, ${ipAddress}, ${userAgent}, NOW())
-        ON CONFLICT ("blogId", "ipAddress") DO NOTHING
-        RETURNING 1
-      )
-      UPDATE "Blog"
-      SET "viewCount" = "viewCount" + 1
-      WHERE "id" = ${id}
-        AND EXISTS (SELECT 1 FROM ins)
-    `;
+    const prisma = getPrisma(context);
+    // D1/SQLite uyumlu: raw SQL yerine Prisma API.
+    // D1 transaction desteklemez, bu yüzden sırayla tekil sorgular.
+    // Aynı IP daha önce görüntülediyse sayacı artırma.
+    const existing = await prisma.blogView.findUnique({
+      where: { blogId_ipAddress: { blogId: id, ipAddress } },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      await prisma.blogView.create({
+        data: { blogId: id, ipAddress, userAgent },
+      });
+      await prisma.blog.update({
+        where: { id },
+        data: { viewCount: { increment: 1 } },
+      });
+    }
 
     return data({ success: true }, { status: 200 });
   } catch (error) {

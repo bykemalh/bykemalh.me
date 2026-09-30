@@ -63,8 +63,8 @@ Originally built with Next.js, this template has been **completely rewritten wit
 
 ### Analytics
 - Custom Analytics System (no third-party tracking)
-- Unique View Detection (IP + User Agent deduplication)
-- PostgreSQL Database with Prisma ORM
+- Unique View Detection (IP deduplication)
+- Cloudflare D1 Database with Prisma ORM
 - Real-time View Counts
 
 ## Tech Stack
@@ -74,7 +74,7 @@ Originally built with Next.js, this template has been **completely rewritten wit
 **Styling**: [TailwindCSS v4](https://tailwindcss.com)  
 **UI Components**: [Radix UI](https://radix-ui.com)  
 **Animations**: [Framer Motion](https://framer.com/motion)  
-**Database**: PostgreSQL with [Prisma](https://prisma.io)  
+**Database**: Cloudflare D1 (SQLite) with [Prisma](https://prisma.io)  
 **Markdown**: react-markdown + remark/rehype plugins  
 **Math**: KaTeX  
 **Deployment**: Docker-ready
@@ -83,9 +83,9 @@ Originally built with Next.js, this template has been **completely rewritten wit
 
 ### Prerequisites
 
-- Node.js 20+ 
-- PostgreSQL (or use Docker)
-- npm/yarn/pnpm
+- Node.js 22+
+- Cloudflare hesabı (D1 + Workers için)
+- npm
 
 ### Installation
 
@@ -100,25 +100,23 @@ cd bykemalh.me
 npm install
 ```
 
-3. Set up environment variables:
+3. Cloudflare D1 oluştur (bir kez):
 ```bash
-cp .env.example .env
+npx wrangler login
+npx wrangler d1 create portfolio-db
+```
+Çıkan `database_id` değerini `wrangler.jsonc` dosyasındaki
+`d1_databases[0].database_id` alanına (`BURAYA_DATABASE_ID` yerine) yaz.
+
+4. Migration'ları uygula:
+```bash
+npm run db:migrate:local    # local emülasyon
+npm run db:migrate:remote   # production D1
 ```
 
-Edit `.env` with your database URL:
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
-```
-
-4. Initialize database:
+5. Prisma Client üret:
 ```bash
 npx prisma generate
-npx prisma db push
-```
-
-5. (Optional) Seed with sample data:
-```bash
-npx prisma db seed
 ```
 
 ### Development
@@ -137,33 +135,59 @@ Create a production build:
 npm run build
 ```
 
-Start production server:
+Deploy to Cloudflare Workers:
 ```bash
-npm run start
+npm run deploy
 ```
 
-## Docker Deployment
+## Local vs Production DB
+
+- Local geliştirme Cloudflare D1 emülasyonunu kullanır; production verisine dokunmaz.
+- `npm run db:migrate:local` → local emülasyon
+- `npm run db:migrate:remote` → production D1 (`--remote`)
+- `npm run dev` her zaman local D1'e bağlanır.
+
+## Eski PostgreSQL verisini taşıma
+
+PostgreSQL dump'ını doğrudan D1'e uygulamayın (sözdizimi uyumsuz).
+JSON üzerinden güvenli taşıma:
+
+```bash
+# 1. PostgreSQL'den export (psql ile örnek):
+psql "$DATABASE_URL" -t -A -c "SELECT json_build_object('blogs', (SELECT coalesce(json_agg(row_to_json(b)), '[]') FROM \"Blog\" b), 'translations', (SELECT coalesce(json_agg(row_to_json(t)), '[]') FROM \"BlogTranslation\" t), 'views', (SELECT coalesce(json_agg(row_to_json(v)), '[]') FROM \"BlogView\" v))" > data/export.json
+
+# 2. D1 SQL üret:
+npm run db:export   # → data/import.sql + kayıt sayısı özeti
+
+# 3. Uygula (önce local'de doğrula):
+npx wrangler d1 execute portfolio-db --local --file=data/import.sql
+npx wrangler d1 execute portfolio-db --remote --file=data/import.sql
+```
+
+## Docker (yalnızca önizleme)
+
+Varsayılan deploy hedefi Cloudflare Workers'tır. Docker imajı
+yalnızca Node-uyumlu önizleme içindir ve D1'e bağlanmaz:
 
 Build and run with Docker:
 
 ```bash
 docker build -t portfolio .
-docker run -p 3000:3000 --env-file .env portfolio
-```
-
-Or use Docker Compose:
-```bash
-docker-compose up -d
+docker run -p 3000:3000 portfolio
 ```
 
 ## Content Management
 
 ### Adding Blog Posts
 
+Blog studio local SQLite (`prisma/dev.db`) ile çalışır. D1'e aktarmak için
+önce `data/import.sql` üretip `wrangler d1 execute` ile uygulayın
+(bkz. "Eski PostgreSQL verisini taşıma").
+
 Use the paste-safe terminal studio after applying migrations:
 
 ```bash
-npx prisma migrate deploy
+npm run db:migrate:local
 npm run blog
 ```
 
@@ -176,17 +200,18 @@ You can also create an entry in Prisma Studio:
 npx prisma studio
 ```
 
-2. Or use SQL directly:
+2. Or use SQL directly (D1/SQLite — boolean `1/0`):
 ```sql
-INSERT INTO "Blog" (title, slug, content, keywords, categories, published, featured)
+INSERT INTO "BlogTranslation" ("blogId", "locale", "title", "slug", "content", "keywords", "categories", "published")
 VALUES (
+  1,
+  'tr',
   'My First Post',
   'my-first-post',
-  '# Hello World\n\nThis is my first blog post!',
+  '# Hello World',
   'tutorial, react, typescript',
   'Development,Tutorial',
-  true,
-  false
+  1
 );
 ```
 

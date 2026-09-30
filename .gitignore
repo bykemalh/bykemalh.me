@@ -1,6 +1,15 @@
 .DS_Store
 .env
 .env.local
+.dev.vars
+.wrangler/
+/wrangler/
+.mf/
+.mini-flare/
+prisma/dev.db*
+prisma/dev.db-journal*
+data/import.sql
+/data/export.json
 /node_modules/
 
 # React Router

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "~/generated/prisma-node/client";
 import { Box, render, Text, useApp, useInput, usePaste } from "ink";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 

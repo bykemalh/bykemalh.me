@@ -1,7 +1,8 @@
 import { type LoaderFunctionArgs } from "react-router";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const prisma = getPrisma(context);
   const baseUrl = new URL(request.url).origin;
   
   const posts = await prisma.blogTranslation.findMany({

@@ -1,28 +1,24 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaD1 } from "@prisma/adapter-d1";
+import type { D1Database } from "@cloudflare/workers-types";
+import type { RouterContextProvider } from "react-router";
+import { cloudflareContext } from "./cloudflare-context";
+import { PrismaClient } from "~/generated/prisma/client";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+/**
+ * Cloudflare D1 üzerinden Prisma Client oluşturur.
+ * Her request'te Workers binding (`env.DB`) ile çağrılmalıdır.
+ * D1 transaction desteklemez — `$transaction([...])` çağrıları
+ * adapter tarafından sırayla tekil sorgular olarak çalışır.
+ */
+export function createPrisma(d1: D1Database) {
+  const adapter = new PrismaD1(d1);
+  return new PrismaClient({ adapter });
+}
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    // Production: tune connection pool for high-traffic (2M+ daily visitors)
-    // PgBouncer in front of PostgreSQL is strongly recommended for production
-    datasourceUrl: appendPoolParams(process.env.DATABASE_URL || ""),
-    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
-  });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-/** Append connection pool parameters if not already present */
-function appendPoolParams(url: string): string {
-  if (!url) return url;
-  const separator = url.includes("?") ? "&" : "?";
-  const params: string[] = [];
-
-  // Pool size: ~10 connections per CPU core is a safe default
-  if (!url.includes("connection_limit")) params.push("connection_limit=20");
-  // Timeout waiting for a connection from the pool (ms)
-  if (!url.includes("pool_timeout")) params.push("pool_timeout=30");
-
-  return params.length > 0 ? `${url}${separator}${params.join("&")}` : url;
+/** Route loader/action context'inden Prisma Client oluşturur. */
+export function getPrisma(context: Readonly<RouterContextProvider>) {
+  const { env } = context.get(cloudflareContext);
+  const db = env.DB;
+  if (!db) throw new Error("D1 binding `DB` bulunamadı. wrangler.jsonc dosyasını kontrol edin.");
+  return createPrisma(db);
 }

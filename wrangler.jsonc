@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "bykemalh-me",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-09-29",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portfolio-db",
+      "database_id": "51d0a693-af44-49c5-88f6-702b70e3b973",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
