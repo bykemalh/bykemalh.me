@@ -18,7 +18,7 @@ export default defineConfig({
               // Separate vendor chunks for client bundle only
               "vendor-react": ["react", "react-dom", "react-router"],
               "vendor-ui": ["framer-motion", "@radix-ui/react-accordion", "@radix-ui/react-slot"],
-              "vendor-markdown": ["react-markdown", "react-syntax-highlighter", "highlight.js", "rehype-highlight", "rehype-katex", "rehype-slug", "remark-gfm"],
+              "vendor-markdown": ["react-markdown", "highlight.js", "rehype-highlight", "rehype-katex", "rehype-raw", "rehype-sanitize", "rehype-slug", "remark-gfm"],
               "vendor-katex": ["katex"],
               "vendor-other": ["nprogress", "lucide-react", "react-icons", "clsx", "class-variance-authority"],
             },

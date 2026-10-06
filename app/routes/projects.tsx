@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { FloatingDock } from "@/components/floating-dock";
 import { PageTransition } from "@/components/page-transition";
 import { Badge } from "@/components/ui/badge";
-import { generateSEO } from "@/lib/seo";
+import { generateSEO, generateBreadcrumbSchema, generateJsonLd, generateProjectsSchema } from "@/lib/seo";
 import { ExternalLink, Github, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Route } from "./+types/projects";
 import { useLanguage } from "@/hooks/use-language";
+import { projects } from "@/data/projects";
 
 export function headers() {
   return {
@@ -18,235 +19,36 @@ export function headers() {
 export function meta({ }: Route.MetaArgs) {
   return generateSEO({
     title: "Projects",
-    description: "Explore my portfolio of full-stack web development and AI projects including FytureAI AI Chatbot, Sakus Real-time Bus Tracking, Robotek Competition Winner, E-commerce platforms, Network Tools, and more. Technologies: React, Next.js, Node.js, Python, PyTorch, TensorFlow, Flutter.",
+    description: "Web development and AI projects by Kemal Hafızoğlu: Sakus real-time bus tracking, FytureAI chatbot with RAG, Robotek 2025 AI competition winner, e-commerce platforms and network tools. React, Node.js, Python, PyTorch, Flutter.",
     keywords: [
-      "Projects",
-      "Portfolio",
-      "Web Development",
+      "Kemal Hafızoğlu Projects",
+      "Web Development Projects",
       "AI Projects",
-      "React",
-      "Next.js",
-      "Node.js",
-      // Project Names
-      "Hempy E-commerce",
-      "Sakus Bus Tracking",
-      "ArzAuto Vehicle Platform",
-      "Seyfi E-commerce",
-      "SUBU Turnuva Tournament",
-      "PingATAR Network Tool",
-      "Robotek AI Competition",
-      "FytureAI Chatbot",
-      "AI Assistant",
-      "ColdDown App",
-      "FriendlyAI",
-      // Technologies
-      "Shopier API",
-      "Socket.io Real-time",
-      "Express.js",
-      "MongoDB",
-      "PostgreSQL",
-      "Prisma",
-      "Python Flask",
-      "C# WinForms",
-      "PyTorch",
-      "TensorFlow",
-      "OpenCV",
-      "Flutter",
-      "Firebase",
-      "OpenAI API",
-      "RAG Technology",
-      "Vercel AI SDK",
-      // Features
-      "Payment Integration",
+      "Portfolio",
+      "E-commerce Development",
       "Real-time Tracking",
-      "Voice Recognition",
-      "Image Recognition",
-      "Custom AI Training",
-      "Network Monitoring",
-      "Tournament Management",
-      "E-commerce Solutions",
+      "AI Chatbot",
+      "RAG Technology",
+      "React",
+      "Node.js",
+      "Python",
+      "PyTorch",
     ],
     url: "/projects",
   });
 }
 
-const projects = [
-  {
-    id: 1,
-    title: "Hempy",
-    description: "E-commerce website with Shopier API integration for seamless payment processing.",
-    fullDescription: "E-commerce website with Shopier API integration for seamless payment processing. Features a modern design and secure checkout.",
-    image: "/img/projects/1/home.png",
-    images: ["/img/projects/1/home.png"],
-    tags: ["Node.js", "EJS", "Prisma", "PostgreSQL"],
-    demoUrl: "https://hempy.com.tr",
-    repoUrl: "#",
-    features: ["Shopier Integration", "Product Management", "Secure Payments", "Admin Panel"]
-  },
-  {
-    id: 2,
-    title: "Sakus",
-    description: "Real-time location tracking and user-friendly interface for Sakarya Metropolitan Municipality bus tracking system.",
-    fullDescription: "Real-time location tracking and user-friendly interface for Sakarya Metropolitan Municipality bus tracking system. Provides accurate bus times and route information.",
-    image: "/img/projects/2/sakus1.webp",
-    images: [
-      "/img/projects/2/sakus1.webp",
-      "/img/projects/2/sakus2.webp",
-      "/img/projects/2/sakus3.webp",
-      "/img/projects/2/sakus4.webp",
-      "/img/projects/2/sakus5.webp",
-      "/img/projects/2/sakus6.webp"
-    ],
-    tags: ["Node.js", "Express.js", "MongoDB", "Socket.io"],
-    demoUrl: "https://sakus.sakarya.bel.tr",
-    repoUrl: "#",
-    features: ["Real-time Tracking", "Socket.io Integration", "Mobile Friendly", "Live Map"]
-  },
-  {
-    id: 3,
-    title: "ArzAuto",
-    description: "Vehicle sales listing platform with detailed product pages and Arabam.com API integration.",
-    fullDescription: "Vehicle sales listing platform with detailed product pages and Arabam.com API integration. Allows users to browse and filter vehicle listings.",
-    image: "/img/projects/3/arzauto1.webp",
-    images: [
-      "/img/projects/3/arzauto1.webp",
-      "/img/projects/3/arzauto2.webp",
-      "/img/projects/3/arzauto3.webp",
-      "/img/projects/3/arzauto4.webp"
-    ],
-    tags: ["Python Flask", "PostgreSQL"],
-    demoUrl: "https://arzautogarage.com/",
-    repoUrl: "#",
-    features: ["API Integration", "Vehicle Filtering", "Detailed Listings", "Admin Dashboard"]
-  },
-  {
-    id: 4,
-    title: "Seyfi",
-    description: "Full-featured brand-specific e-commerce platform with product management and order tracking.",
-    fullDescription: "Full-featured brand-specific e-commerce platform with product management, order tracking, and payment gateway integration.",
-    image: "/img/projects/4/seyfi.webp",
-    images: ["/img/projects/4/seyfi.webp"],
-    tags: ["PHP", "MySQL", "Bootstrap", "Payment Gateway"],
-    demoUrl: "#",
-    repoUrl: "#",
-    features: ["Product Management", "Order Tracking", "Payment Gateway", "Responsive Design"]
-  },
-  {
-    id: 5,
-    title: "SUBU Turnuva",
-    description: "Tournament management platform for Sakarya University of Applied Sciences.",
-    fullDescription: "Tournament management platform for Sakarya University of Applied Sciences with user registration, fixture creation, and result tracking.",
-    image: "/img/projects/5/subu1.webp",
-    images: [
-      "/img/projects/5/subu1.webp",
-      "/img/projects/5/subu2.webp",
-      "/img/projects/5/subu3.webp",
-      "/img/projects/5/subu4.webp",
-      "/img/projects/5/subu5.webp"
-    ],
-    tags: ["Node.js", "Express.js", "MongoDB", "JWT Auth"],
-    demoUrl: "https://rekabest.com",
-    repoUrl: "#",
-    features: ["User Registration", "Automated Fixtures", "Result Tracking", "JWT Authentication"]
-  },
-  {
-    id: 6,
-    title: "PingATAR",
-    description: "Multi-ping and network monitoring software for İnegöl Municipality.",
-    fullDescription: "Multi-ping and network monitoring software for İnegöl Municipality. Desktop application for comprehensive network management and troubleshooting.",
-    image: "/img/projects/6/pingatar.webp",
-    images: ["/img/projects/6/pingatar.webp"],
-    tags: ["C# WinForms", "Network Programming"],
-    demoUrl: "#",
-    repoUrl: "https://github.com/bykemalh/pingatar",
-    features: ["Multi-ping", "Network Monitoring", "Desktop App", "Real-time Status"]
-  },
-  {
-    id: 7,
-    title: "Robotek",
-    description: "First place project in 2025 SUBU Robotek competition. Voice recognition and image matching model.",
-    fullDescription: "First place project in 2025 SUBU Robotek competition. Voice recognition and image matching model with 100% accuracy. Demonstrates advanced AI capabilities.",
-    image: "/img/projects/7/robotek1.webp",
-    images: [
-      "/img/projects/7/robotek1.webp",
-      "/img/projects/7/robotek2.webp"
-    ],
-    tags: ["PyTorch", "TensorFlow", "OpenCV"],
-    demoUrl: "#",
-    repoUrl: "https://github.com/bykemalh/strongai_robotek",
-    features: ["Voice Recognition", "Image Matching", "High Accuracy", "Competition Winner"]
-  },
-  {
-    id: 8,
-    title: "FytureAI",
-    description: "AI-powered assistant chatbot with training capabilities using files and websites.",
-    fullDescription: "AI-powered assistant chatbot with training capabilities using files and websites. Develop your own AI assistant with company information and easily integrate it into your website.",
-    image: "/img/projects/8/image.png",
-    images: ["/img/projects/8/image.png"],
-    tags: ["Next.js", "Prisma", "PostgreSQL", "RAG Tuning", "OpenAI", "Flask"],
-    demoUrl: "https://fyture.io",
-    repoUrl: "#",
-    features: ["Custom AI Training", "File & Website Integration", "Easy Embedding", "RAG Technology"]
-  },
-  {
-    id: 9,
-    title: "AI bykemalh.me",
-    description: "Personal AI assistant showcasing portfolio and capabilities.",
-    fullDescription: "Personal AI assistant showcasing portfolio and capabilities. Interact with the AI to learn more about my projects and skills.",
-    image: "/img/projects/9/homescreen.png",
-    images: [
-      "/img/projects/9/homescreen.png",
-      "/img/projects/9/apidocs.png",
-      "/img/projects/9/asistantsscreen.png",
-      "/img/projects/9/chatscreen.png"
-    ],
-    tags: ["AI", "React", "Vercel AI SDK"],
-    demoUrl: "https://ai.bykemalh.me",
-    repoUrl: "#",
-    features: ["Interactive Chat", "Portfolio Showcase", "AI Integration"]
-  },
-  {
-    id: 10,
-    title: "Psikolog Tugba Yıldırım",
-    description: "Modern and elegant website for Psychologist Tuğba Yıldırım.",
-    fullDescription: "Modern and elegant website for Psychologist Tuğba Yıldırım. Features a clean design, appointment information, and blog section.",
-    image: "/img/projects/10/image.png",
-    images: ["/img/projects/10/image.png"],
-    tags: ["Node.js", "EJS"],
-    demoUrl: "https://psikologtugbayildirim.com/",
-    repoUrl: "#",
-    features: ["Modern Design", "Blog Section", "Contact Form", "Responsive Layout"]
-  },
-  {
-    id: 11,
-    title: "ColdDown",
-    description: "Freelancer Order Management App",
-    fullDescription: "Freelancer Order Management and Tracking App with Next JS",
-    image: "/img/projects/11/image.png",
-    images: ["/img/projects/11/image.png"],
-    tags: ["Flutter", "Dart", "Firebase"],
-    demoUrl: "",
-    repoUrl: "https://github.com/bykemalh/colddown",
-    features: ["Guided Meditation", "Breathing Exercises", "Relaxing Sounds", "User Progress"]
-  },
-  {
-    id: 12,
-    title: "FriendlyAI",
-    description: "AI companion for friendly conversations and support.",
-    fullDescription: "AI companion for friendly conversations and support. Built to provide a safe and engaging space for users to chat.",
-    image: "/img/projects/12/home.png",
-    images: ["/img/projects/12/home.png"],
-    tags: ["Next.js", "OpenAI", "Tailwind CSS"],
-    demoUrl: "https://metcen.bykemalh.me",
-    repoUrl: "#",
-    features: ["Friendly Chat", "Emotional Support", "24/7 Availability"]
-  }
-];
 
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { t, tProject } = useLanguage();
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Projects", url: "/projects" },
+  ]);
+  const projectsSchema = generateProjectsSchema();
 
   useEffect(() => {
     if (selectedProject) {
@@ -272,6 +74,8 @@ export default function Projects() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={generateJsonLd(projectsSchema)} />
       <FloatingDock />
       <PageTransition>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">

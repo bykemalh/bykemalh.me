@@ -10,6 +10,7 @@ import {
 import { useEffect, useMemo } from "react";
 import nProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { useLoaderData } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -19,6 +20,18 @@ import { LanguageProvider } from "@/hooks/use-language";
 // Configure NProgress
 if (typeof document !== "undefined") {
   nProgress.configure({ showSpinner: false });
+}
+
+/**
+ * SSR sırasında <html lang> için sayfa dilini belirler.
+ * URL yolundaki /tr|/en öneki blog sayfalarındaki dili verir; diğer sayfalar
+ * site varsayılanı olan Türkçe'de kalır. (UI dili istemci tarafında ayrıca
+ * LanguageProvider tarafından ayarlanır.)
+ */
+export function loader({ request }: Route.LoaderArgs) {
+  const pathLocale = new URL(request.url).pathname.split("/")[1];
+  const lang = pathLocale === "en" ? "en" : "tr";
+  return { lang };
 }
 
 export const links: Route.LinksFunction = () => [
@@ -37,9 +50,22 @@ export const links: Route.LinksFunction = () => [
 
 ];
 
+/**
+ * Layout kök route elemanı olarak render edildiği için useLoaderData kullanabilir.
+ * Hata durumunda loader verisi bulunamayabilir; bu durumda güvenli biçimde "tr"'ye düşer.
+ */
+function useHtmlLang(): string {
+  try {
+    return useLoaderData<typeof loader>()?.lang ?? "tr";
+  } catch {
+    return "tr";
+  }
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const lang = useHtmlLang();
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -113,7 +139,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? "404" : `Error ${error.status}`;
     details =
       error.status === 404
         ? "The requested page could not be found."
@@ -124,14 +150,20 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex items-center justify-center p-8">
+      <div className="max-w-xl w-full">
+        <p className="font-mono text-sm text-gray-400 dark:text-gray-600 mb-2">{message}</p>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">Something went wrong</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-8">{details}</p>
+        <a href="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium">
+          ← Home
+        </a>
+        {stack && (
+          <pre className="w-full p-4 mt-8 overflow-x-auto rounded-lg bg-gray-100 dark:bg-gray-900 text-sm">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </div>
     </main>
   );
 }

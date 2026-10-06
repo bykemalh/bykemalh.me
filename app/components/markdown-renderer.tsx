@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
 import rehypeKatex from "rehype-katex";
 import type { Components } from "react-markdown";
@@ -15,6 +16,46 @@ import "katex/dist/katex.min.css";
 interface MarkdownRendererProps {
   content: string;
 }
+
+/**
+ * Güvenlik: rehype-raw ile ayrıştırılan ham HTML, rehype-sanitize ile
+ * beyaz liste esaslı temizlenir. KaTeX ve highlight.js çıktıları sanitize
+ * ADINDAN SONRA üretildiği için bozulmadan kalır.
+ */
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames ?? []),
+    "figure",
+    "figcaption",
+    "video",
+    "audio",
+    "iframe",
+    "time",
+  ],
+  attributes: {
+    ...defaultSchema.attributes,
+    img: [...(defaultSchema.attributes?.img ?? []), "loading", "title"],
+    video: ["src", "controls", "preload", "poster", "muted", "loop", "playsInline", "title"],
+    audio: ["src", "controls", "preload", "title"],
+    iframe: ["src", "title", "allow", "allowFullScreen", "frameBorder", "loading"],
+  },
+  protocols: {
+    ...defaultSchema.protocols,
+    poster: ["http", "https"],
+  },
+};
+
+/**
+ * iframe src için izinli gömme kaynakları (CSP frame-src ile eş tutulur).
+ */
+const EMBEDDABLE_HOSTS = new Set([
+  "www.youtube.com",
+  "youtube.com",
+  "www.youtube-nocookie.com",
+  "player.vimeo.com",
+  "open.spotify.com",
+]);
 
 // Markdown component'lerini sabit tut - her render'da yeniden oluşturma
 const createMarkdownComponents = (): Components => ({
@@ -59,16 +100,28 @@ const createMarkdownComponents = (): Components => ({
       </span>
     ),
 
-    // iFrame (YouTube, etc.)
-    iframe: ({ ...props }) => (
-      <div className="my-8 relative w-full" style={{ paddingBottom: "56.25%" }}>
-        <iframe
-          {...props}
-          className="absolute top-0 left-0 w-full h-full rounded-lg border border-gray-200 dark:border-gray-800 shadow-md"
-          loading="lazy"
-        />
-      </div>
-    ),
+    // iFrame (YouTube, vb.) — yalnızca beyaz listedeki kaynaklar render edilir
+    iframe: ({ src, title, ...props }) => {
+      let host = "";
+      try {
+        host = src ? new URL(src).hostname : "";
+      } catch {
+        return null;
+      }
+      if (!EMBEDDABLE_HOSTS.has(host)) return null;
+      return (
+        <div className="my-8 relative w-full" style={{ paddingBottom: "56.25%" }}>
+          <iframe
+            {...props}
+            src={src}
+            title={title || "Embedded content"}
+            className="absolute top-0 left-0 w-full h-full rounded-lg border border-gray-200 dark:border-gray-800 shadow-md"
+            loading="lazy"
+            allowFullScreen
+          />
+        </div>
+      );
+    },
 
     // Details/Summary (collapsible)
     details: ({ ...props }) => (
@@ -191,18 +244,19 @@ const createMarkdownComponents = (): Components => ({
       );
     },
 
-    // Task list checkbox
-    input: ({ ...props }) => {
-      if (props.type === 'checkbox') {
+    // Task list checkbox (Güvenlik: yalnızca devre dışı checkbox'lara izin verilir)
+    input: ({ type, ...props }) => {
+      if (type === "checkbox") {
         return (
           <input
             {...props}
+            type="checkbox"
             className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 mt-1"
             disabled
           />
         );
       }
-      return <input {...props} className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />;
+      return null;
     },
 
     // Blockquotes
@@ -251,20 +305,6 @@ const createMarkdownComponents = (): Components => ({
       />
     ),
 
-    // Form elements
-    form: ({ ...props }) => (
-      <form className="my-6 space-y-4" {...props} />
-    ),
-    label: ({ ...props }) => (
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" {...props} />
-    ),
-    button: ({ ...props }) => (
-      <button
-        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors"
-        {...props}
-      />
-    ),
-
     // Definition list (dl, dt, dd)
     dl: ({ ...props }) => (
       <dl className="my-6 space-y-4" {...props} />
@@ -278,12 +318,15 @@ const createMarkdownComponents = (): Components => ({
 });
 
 // Rehype plugins'i sabit tut - her render'da yeniden oluşturma
+// Sıra önemli: ham HTML önce ayrıştırılır (rehypeRaw), sonra temizlenir
+// (rehypeSanitize); KaTeX ve highlight çıktıları temizlemeden SONRA üretilir.
 const rehypePlugins = [
   rehypeRaw,
+  [rehypeSanitize, sanitizeSchema],
   rehypeSlug,
   rehypeKatex,
   rehypeHighlight,
-];
+] as any[];
 
 // Remark plugins'i sabit tut
 const remarkPlugins = [remarkGfm, remarkMath];

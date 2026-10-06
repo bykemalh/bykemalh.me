@@ -28,7 +28,7 @@ import {
   SiReactrouter
 } from "react-icons/si";
 import { PageTransition } from "@/components/page-transition";
-import { generateSEO, generateBreadcrumbSchema, generateJsonLd, generatePersonSchema, generateWebsiteSchema } from "@/lib/seo";
+import { generateSEO, generateBreadcrumbSchema, generateJsonLd, generateProfilePageSchema, generateWebsiteSchema } from "@/lib/seo";
 import type { Route } from "./+types/home";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -42,99 +42,20 @@ export function headers() {
 export function meta({ }: Route.MetaArgs) {
   return generateSEO({
     title: "Full Stack Developer & AI Engineer",
-    description: "Kemal Hafızoğlu's portfolio showcasing expertise in full-stack web development, AI/ML engineering, and innovative software solutions. Creator of FytureAI, Sakus Bus Tracking, Robotek AI Competition Winner, and more. Specialized in React Router, Python, Node.js, PyTorch, and AI chatbots.",
+    description: "Kemal Hafızoğlu — full-stack developer and AI engineer from Sakarya, Turkey. E-commerce platforms, real-time tracking systems and award-winning AI projects with React, Node.js, Python and PyTorch.",
     keywords: [
       "Kemal Hafızoğlu",
+      "bykemalh",
       "Full Stack Developer",
       "AI Engineer",
       "Web Developer",
       "Machine Learning",
-      "React Router",
       "React",
       "Node.js",
       "Python",
       "PyTorch",
       "Portfolio",
-      "Software Engineer",
       "Sakarya Developer",
-      // Project Names
-      "Ewros Yazılım",
-      "Ewros Software",
-      "Hempy",
-      "Sakus",
-      "ArzAuto",
-      "Seyfi",
-      "SUBU Turnuva",
-      "PingATAR",
-      "Robotek",
-      "FytureAI",
-      "AI bykemalh.me",
-      "Psikolog Tugba Yıldırım",
-      "ColdDown",
-      "FriendlyAI",
-      // Technologies & Skills
-      "E-commerce Development",
-      "Real-time Tracking",
-      "Socket.io",
-      "API Integration",
-      "Shopier Integration",
-      "Express.js",
-      "MongoDB",
-      "PostgreSQL",
-      "Prisma ORM",
-      "Python Flask",
-      "C# WinForms",
-      "Network Programming",
-      "TensorFlow",
-      "OpenCV",
-      "Voice Recognition",
-      "Image Matching",
-      "AI Chatbot",
-      "RAG Technology",
-      "OpenAI",
-      "Next.js",
-      "Flutter",
-      "Firebase",
-      "Vercel AI SDK",
-      "JWT Authentication",
-      "Payment Gateway",
-      "Sakarya Metropolitan Municipality",
-      "SUBU Competition Winner",
-      "Kemal H.",
-      "bykemalh.me",
-      "KemalH Developer",
-      "KemalH AI",
-      "KemalH Portfolio",
-      "KemalH Projects",
-      "KemalH Blog",
-      "KemalH Tech Blog",
-      "KemalH Web Development",
-      "KemalH Machine Learning",
-      "KemalH Software Engineering",
-      "Kemal Hafızoğlu Portfolio",
-      "Kemal Hafız",
-      "KemalH Full Stack",
-      "Kemal Hafızoğlu AI",
-      "Kemal Hafızoğlu Web Development",
-      "Kemal Hafızoğlu Machine Learning",
-      "Kemal Hafızoğlu Software Engineering",
-      "bykemalh Projects",
-      "bykemalh Portfolio",
-      "bykemalh Tech Blog",
-      "bykemalh Web Development",
-      "bykemalh Machine Learning",
-      "bykemalh Software Engineering",
-      "bykemalh AI Engineer",
-      "bykemalh Full Stack Developer",
-      "bykemalh.me Portfolio",
-      "bykemalh.me Projects",
-      "bykemalh.me Tech Blog",
-      "bykemalh.me Web Development",
-      "bykemalh.me Machine Learning",
-      "bykemalh.me Software Engineering",
-      "bykemalh.me AI Engineer",
-      "bykemalh.me Full Stack Developer",
-      "KemalH AI Engineer",
     ],
     url: "/",
     type: "profile",
@@ -145,7 +66,7 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   { name: "Home", url: "/" },
 ]);
 
-const personSchema = generatePersonSchema();
+const profilePageSchema = generateProfilePageSchema();
 const websiteSchema = generateWebsiteSchema();
 
 export default function Home() {
@@ -159,11 +80,11 @@ export default function Home() {
         key="breadcrumb-jsonld"
       />
 
-      {/* Structured Data - Person */}
+      {/* Structured Data - ProfilePage (Person) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={generateJsonLd(personSchema)}
-        key="person-jsonld"
+        dangerouslySetInnerHTML={generateJsonLd(profilePageSchema)}
+        key="profilepage-jsonld"
       />
 
       {/* Structured Data - Website */}
@@ -200,6 +121,9 @@ export default function Home() {
           <div id="about" className="mt-8 sm:mt-10 md:mt-12">
             <h3 className="text-xl sm:text-2xl font-semibold mt-8 sm:mt-10 md:mt-12 text-black dark:text-white">{t("aboutMe")}</h3>
             <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4">
+              {t("aboutSummary")}
+            </p>
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4">
               {t("aboutMeText")}
             </p>
           </div>
@@ -225,7 +149,7 @@ export default function Home() {
                       </div>
                     </div>
                     <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto sm:ml-0">
-                      {language === "tr" ? "Nis 2026 - " + t("present") : language === "ru" ? "Апр 2026 - " + t("present") : "Apr 2026 - " + t("present")}
+                      {language === "tr" ? "Nis 2026 - Eyl 2026" : language === "ru" ? "Апр 2026 - Сен 2026" : "Apr 2026 - Sep 2026"}
                     </span>
                   </div>
                 </AccordionTrigger>

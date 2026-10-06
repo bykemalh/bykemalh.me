@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { blogLocales, blogPath, isBlogLocale, localeLabel } from "@/lib/blog-locale";
 import { getPrisma } from "@/lib/prisma";
-import { generateBreadcrumbSchema, generateJsonLd, generateSEO } from "@/lib/seo";
+import { generateBreadcrumbSchema, generateBlogCollectionSchema, generateJsonLd, generateSEO } from "@/lib/seo";
 import { FileText, Star } from "lucide-react";
 import { data, Link, useLoaderData } from "react-router";
 import type { Route } from "./+types/blog";
@@ -31,15 +31,26 @@ export async function loader({ params, context }: Route.LoaderArgs) {
 
 export function meta({ loaderData }: Route.MetaArgs) {
   const locale = loaderData?.locale ?? "tr";
-  return generateSEO({ title: "Blog", description: locale === "tr" ? "Yazılım geliştirme, yapay zekâ ve teknoloji üzerine yazılar." : "Articles about software development, AI, and technology.", keywords: ["blog", "software", "technology", "AI"], url: blogPath(locale), locale });
+  return generateSEO({
+    title: "Blog",
+    description: locale === "tr"
+      ? "Kemal Hafızoğlu'nun yazılım geliştirme, yapay zekâ ve teknoloji üzerine Türkçe yazıları."
+      : "Articles by Kemal Hafızoğlu about software development, AI, and technology.",
+    keywords: ["Kemal Hafızoğlu Blog", "software development", "technology", "AI", locale === "tr" ? "yazılım blog" : "tech blog"],
+    url: blogPath(locale),
+    locale,
+    alternates: blogLocales.map((item) => ({ locale: item, url: blogPath(item) })),
+  });
 }
 
 export default function BlogPage() {
   const { locale, posts } = useLoaderData<typeof loader>();
   const dateLocale = locale === "tr" ? "tr-TR" : "en-US";
   const breadcrumbSchema = generateBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Blog", url: blogPath(locale) }]);
+  const collectionSchema = generateBlogCollectionSchema({ posts, locale });
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={generateJsonLd(breadcrumbSchema)} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={generateJsonLd(collectionSchema)} />
     <FloatingDock />
     <PageTransition><main className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-24">
       <header className="mb-12 sm:mb-16 md:mb-20 flex items-start justify-between gap-4">

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { blogLocales, blogPath, isBlogLocale, localeLabel } from "@/lib/blog-locale";
 import { getPrisma } from "@/lib/prisma";
-import { generateBlogPostingSchema, generateBreadcrumbSchema, generateJsonLd, generateSEO } from "@/lib/seo";
+import { generateBlogPostingSchema, generateBreadcrumbSchema, generateJsonLd, generateSEO, plainExcerpt } from "@/lib/seo";
 import { ArrowLeft, Calendar, Clock, Star } from "lucide-react";
 import { data, Link, useLoaderData } from "react-router";
 import type { Route } from "./+types/blog.$slug";
@@ -28,7 +28,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData?.post) return [{ title: "Blog Not Found" }];
   const { post, locale } = loaderData;
   return generateSEO({
-    title: post.title, description: post.content.substring(0, 160).replace(/[#*_`]/g, ""), keywords: post.keywords.split(",").map((keyword: string) => keyword.trim()), type: "article", url: blogPath(locale, post.slug), publishedTime: (post.publishedAt ?? post.createdAt).toISOString(), modifiedTime: post.updatedAt.toISOString(), section: post.categories.split(",")[0]?.trim(), tags: post.categories.split(",").map((category: string) => category.trim()), locale,
+    title: post.title, description: plainExcerpt(post.content), keywords: post.keywords.split(",").map((keyword: string) => keyword.trim()), type: "article", url: blogPath(locale, post.slug), publishedTime: (post.publishedAt ?? post.createdAt).toISOString(), modifiedTime: post.updatedAt.toISOString(), section: post.categories.split(",")[0]?.trim(), tags: post.categories.split(",").map((category: string) => category.trim()), locale,
     alternates: post.blog.translations.map((translation: { locale: string; slug: string }) => ({ locale: translation.locale, url: blogPath(translation.locale as "tr" | "en", translation.slug) })),
   });
 }
@@ -39,7 +39,7 @@ export default function BlogPostPage() {
   const readingTime = Math.max(1, Math.ceil(post.content.trim().split(/\s+/).length / 200));
   const postUrl = blogPath(locale, post.slug);
   const breadcrumbSchema = generateBreadcrumbSchema([{ name: "Home", url: "/" }, { name: "Blog", url: blogPath(locale) }, { name: post.title, url: postUrl }]);
-  const blogPostSchema = generateBlogPostingSchema({ title: post.title, description: post.content.substring(0, 160).replace(/[#*_`]/g, ""), content: post.content, url: postUrl, datePublished: (post.publishedAt ?? post.createdAt).toISOString(), dateModified: post.updatedAt.toISOString(), author: "Kemal Hafızoğlu", keywords: post.keywords, readingTime, language: locale });
+  const blogPostSchema = generateBlogPostingSchema({ title: post.title, description: plainExcerpt(post.content), content: post.content, url: postUrl, datePublished: (post.publishedAt ?? post.createdAt).toISOString(), dateModified: post.updatedAt.toISOString(), author: "Kemal Hafızoğlu", keywords: post.keywords, readingTime, language: locale });
   const translations = new Map(post.blog.translations.map((translation) => [translation.locale, translation.slug]));
   return <>
     <BlogViewTracker blogId={post.blog.id} />
